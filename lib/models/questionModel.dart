@@ -1,7 +1,6 @@
 class Question{
-  late int index;
-  late String questionString;
-  late bool correctAnswer;
+  String questionString;
+  bool correctAnswer;
 
-  Question({required this.index, required this.correctAnswer, required this.questionString});
+  Question({this.questionString, this.correctAnswer});
 }

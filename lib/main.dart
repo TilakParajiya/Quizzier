@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
-import './models/questionModel.dart';
+import 'controllers/quizController.dart';
 
 void main() => runApp(Quizzler());
 
@@ -27,35 +28,7 @@ class QuizPage extends StatefulWidget {
 }
 
 class _QuizPageState extends State<QuizPage> {
-  List<Icon> _scoreKeeper = [];
-  final _correctIcon = const Icon(
-    Icons.check,
-    color: Colors.green,
-  );
-  final _wrongIcon = const Icon(
-    Icons.close,
-    color: Colors.red,
-  );
-  final List<Question> _questions = [
-    Question(
-      index: 1,
-      correctAnswer: false,
-      questionString: 'You can lead a cow down stairs but not up stairs.',
-    ),
-    Question(
-      index: 2,
-      correctAnswer: true,
-      questionString:
-          'Approximately one quarter of human bones are in the feet.',
-    ),
-    Question(
-      index: 3,
-      correctAnswer: true,
-      questionString: 'A slug\'s blood is green.',
-    ),
-  ];
-  int questionIndex = 0;
-  late bool correctAnswer;
+  QuizController controller = new QuizController();
 
   @override
   Widget build(BuildContext context) {
@@ -70,8 +43,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: const EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                _questions[questionIndex].questionString,
-                textAlign: TextAlign.center,
+                controller.getQuestion(),
                 style: const TextStyle(
                   fontSize: 25.0,
                   color: Colors.white,
@@ -96,10 +68,19 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
+                if (controller.isFinished()) {
+                  Alert(
+                          context: context,
+                          title: "GAME OVER",
+                          desc: "You have reached the end of this quiz.")
+                      .show();
+                }
                 setState(() {
-                  correctAnswer = _questions[questionIndex].correctAnswer ? true : false;
-                  addIcon();
-                  questionIndex += 1;
+                  if (controller.isFinished()) {
+                    controller.reset();
+                  }
+                    controller.stateChanges(true);
+
                 });
                 //The user picked true.
               },
@@ -122,9 +103,20 @@ class _QuizPageState extends State<QuizPage> {
               ),
               onPressed: () {
                 //The user picked false.
-                correctAnswer = !_questions[questionIndex].correctAnswer ? true : false;
-                addIcon();
-                questionIndex += 1;
+                if (controller.isFinished()) {
+                Alert(
+                    context: context,
+                    title: "GAME OVER",
+                    desc: "You have reached the end of this quiz.")
+                    .show();
+                }
+                setState(() {
+                  if (controller.isFinished()) {
+
+                    controller.reset();
+                  }
+                  controller.stateChanges(false);
+                });
               },
             ),
           ),
@@ -132,14 +124,10 @@ class _QuizPageState extends State<QuizPage> {
         // Score Keeper
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: _scoreKeeper,
+          children: controller.getScoreKeeper(),
         )
       ],
     );
-  }
-
-  void addIcon() {
-    _scoreKeeper.add(correctAnswer ? _correctIcon : _wrongIcon);
   }
 }
 
